@@ -1,3 +1,7 @@
+# microsoft-RAG-project
+YBS proje dokümanlarını okuyup, kullanıcının proje süreciyle ilgili sorularına kaynaklı cevap veren yerel RAG asistanı.
+
+
 # YBS Project Tracking Assistant
 
 ## Local RAG Project Management Assistant with Microsoft Foundry Local
