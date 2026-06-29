@@ -1,0 +1,11 @@
+1. Hafta: Proje konusu netleştirilir. RAG kavramı öğrenilir. README, proje yol haritası ve mimari dokümantasyon hazırlanır.
+
+2. Hafta: Projenin bilgi tabanı oluşturulur. Proje amacı, görev listesi, teslim kriterleri, riskler ve sunum notları gibi dokümanlar hazırlanır.
+
+3. Hafta: Python proje yapısı kurulur. Dokümanları okuyan ve metinleri parçalara ayıran temel kodlar yazılır.
+
+4. Hafta: Retrieval mantığı geliştirilir. Kullanıcı sorusuna en alakalı doküman parçalarının bulunması sağlanır.
+
+5. Hafta: Foundry Local entegrasyonu yapılır. Bulunan doküman parçaları modele context olarak verilerek cevap üretimi gerçekleştirilir.
+
+6. Hafta: Testler yapılır. README güncellenir. Demo videosu ve final sunum hazırlanır.

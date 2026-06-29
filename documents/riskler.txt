@@ -1,0 +1,11 @@
+Bu projede karşılaşılabilecek riskler şunlardır:
+
+1. Foundry Local kurulumunda teknik sorun yaşanabilir.
+2. Yerel model bilgisayar performansına bağlı olarak yavaş çalışabilir.
+3. Dokümanlar yetersiz hazırlanırsa cevap kalitesi düşük olabilir.
+4. Chunking yapısı doğru kurulmazsa ilgili bilgiler eksik bulunabilir.
+5. Retrieval sistemi yanlış doküman parçalarını seçebilir.
+6. Model, verilen context dışında cevap üretmeye çalışabilir.
+7. Proje kapsamı fazla büyütülürse zaman yönetimi zorlaşabilir.
+
+Bu riskleri azaltmak için proje küçük kapsamlı tutulacak, önce TXT dosyalarıyla başlanacak, sonra ihtiyaç olursa SQLite, PDF ve Streamlit gibi geliştirmeler eklenecektir.

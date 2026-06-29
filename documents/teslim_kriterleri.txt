@@ -1,0 +1,12 @@
+Projenin teslim kriterleri şunlardır:
+
+1. Çalışan bir yerel RAG uygulaması olmalıdır.
+2. Uygulama, proje dokümanlarından bilgi çekebilmelidir.
+3. Kullanıcı doğal dilde soru sorabilmelidir.
+4. Sistem, soruya en alakalı doküman parçalarını bulabilmelidir.
+5. Cevaplar doküman içeriğine dayalı olmalıdır.
+6. Cevapla birlikte kaynak doküman bilgisi gösterilmelidir.
+7. README dosyası kurulum ve kullanım adımlarını içermelidir.
+8. Proje mimarisi ve yol haritası dokümante edilmelidir.
+9. Test soruları ve örnek çıktılar hazırlanmalıdır.
+10. Final sunum veya demo videosu ile proje anlatılmalıdır.

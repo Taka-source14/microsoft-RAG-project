@@ -1,0 +1,13 @@
+RAG, Retrieval-Augmented Generation ifadesinin kısaltmasıdır.
+
+Türkçeye bilgi getirerek cevap üretme yöntemi olarak çevrilebilir.
+
+RAG yaklaşımında yapay zeka modeli doğrudan cevap vermek yerine önce dış bir bilgi kaynağından ilgili bilgileri alır. Daha sonra bu bilgileri context olarak kullanarak cevap üretir.
+
+RAG üç temel adımdan oluşur:
+
+1. Retrieval: Kullanıcı sorusuyla ilgili doküman parçaları bulunur.
+2. Augmentation: Bulunan bilgiler modelin promptuna context olarak eklenir.
+3. Generation: Model, verilen context üzerinden cevap üretir.
+
+Bu projede RAG, YBS proje dokümanlarından bilgi çekmek ve proje süreciyle ilgili sorulara daha güvenilir cevaplar üretmek için kullanılmaktadır.

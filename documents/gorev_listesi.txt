@@ -1,0 +1,14 @@
+Proje görevleri şunlardır:
+
+1. GitHub reposu oluşturmak.
+2. README dosyasını hazırlamak.
+3. Proje yol haritasını oluşturmak.
+4. Mimari dokümantasyonu hazırlamak.
+5. Bilgi tabanı dokümanlarını oluşturmak.
+6. Dokümanları okuyacak Python modülünü yazmak.
+7. Metinleri chunklara bölecek yapıyı geliştirmek.
+8. Kullanıcı sorusuna göre ilgili chunkları bulacak retrieval modülünü hazırlamak.
+9. Foundry Local ile cevap üretimini sağlamak.
+10. Kaynak gösterme özelliği eklemek.
+11. Test soruları hazırlamak.
+12. Demo ve final sunumu tamamlamak.

@@ -1,0 +1,7 @@
+YBS Proje Takip Asistanı, Yönetim Bilişim Sistemleri alanında proje ilerleme sürecini desteklemek amacıyla geliştirilen yerel bir RAG uygulamasıdır.
+
+Bu projenin amacı, proje dokümanlarını daha erişilebilir hale getirmek ve kullanıcının proje süreciyle ilgili sorularına dokümanlara dayalı cevaplar üretmektir.
+
+Sistem; proje amacı, haftalık plan, görev listesi, teslim kriterleri, riskler, sunum notları ve RAG açıklaması gibi dokümanları bilgi kaynağı olarak kullanır.
+
+Bu uygulama sayesinde kullanıcı, proje dosyaları arasında manuel arama yapmak yerine doğal dilde soru sorarak ihtiyaç duyduğu bilgiye daha hızlı ulaşabilir.

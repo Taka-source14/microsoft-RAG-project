@@ -1,0 +1,9 @@
+Bu proje, YBS proje yönetimi sürecini destekleyen yerel bir RAG asistanıdır.
+
+Sunumda öncelikle problem tanımı anlatılacaktır. Proje dokümanları genellikle farklı dosyalarda dağınık halde bulunur. Kullanıcı ihtiyaç duyduğu bilgiye ulaşmak için manuel arama yapmak zorunda kalır.
+
+Bu proje bu problemi çözmek için geliştirilmiştir. Kullanıcı proje hakkında doğal dilde soru sorar. Sistem önce yerel dokümanlarda ilgili bilgiyi arar, ardından bu bilgiyi Foundry Local üzerinde çalışan modele vererek cevap üretir.
+
+Projenin temel bileşenleri doküman yükleme, chunking, embedding, retrieval, prompt oluşturma ve cevap üretimidir.
+
+Demo sırasında kullanıcıdan örnek sorular alınacak ve sistemin kaynaklı cevap üretmesi gösterilecektir.
