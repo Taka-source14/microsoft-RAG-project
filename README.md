@@ -1,27 +1,39 @@
 # YBS Proje Takip Asistanı – Local RAG Project Management Assistant
 
-## 1. Project Overview
+This project is a terminal-based Local RAG Project Management Assistant developed for the “Local RAG AI Assistant with Microsoft Foundry Local” assignment.
 
-This project is a terminal-based Local RAG MVP developed for the Microsoft Foundry Local / Local RAG AI Assistant project requirement.
-
-The system allows users to ask natural language questions over local project documents. It reads local TXT, DOCX, and text-based PDF files, splits them into chunks, creates local vector representations, stores them in SQLite, retrieves the most relevant chunks with cosine similarity, and produces short source-grounded answers.
-
-To support this, the implementation integrates:
-- **Local RAG** & **Retrieval-Augmented Generation** concepts
-- **Microsoft Foundry Local** ready interfaces
-- Automated **document ingestion** (supporting TXT, DOCX, PDF parsing)
-- Text **chunking**
-- Text **embeddings** (with TF-IDF local fallback)
-- Structured **vector search** and **SQLite vector store**
-- **Semantic retrieval** based on **cosine similarity**
-- **Prompt engineering** for safe context boundaries
-- **Grounded answer generation** using extractive fallbacks
-- Traceable **source citations** with chunk IDs and scores
-- Complete **offline execution** with no cloud APIs
+The system implements a complete local Retrieval-Augmented Generation pipeline:
+- local document ingestion
+- TXT, DOCX, and text-based PDF loading
+- document chunking
+- local vector representation
+- SQLite vector store
+- semantic retrieval
+- cosine similarity
+- prompt construction
+- source-grounded answer generation
+- source citations
+- fallback behavior for unanswerable questions
+- offline execution
 
 ---
 
-## 2. Assignment Alignment
+## Local AI / Offline RAG Runtime
+
+The assistant runs entirely locally and does not require cloud APIs, paid API keys, or external services. It uses local document processing, local vector representation, local SQLite storage, local semantic retrieval, and local source-grounded answer generation.
+
+Current runtime mode:
+- Embedding mode: TF-IDF fallback
+- Vector store: SQLite rag.db
+- Retrieval: cosine similarity
+- Answering: local source-grounded fallback generation
+- Execution: fully offline CLI application
+
+The project is designed with a Microsoft Foundry Local-ready architecture. The embedding and answer generation layers are modular, so they can be extended to use Microsoft Foundry Local embedding and chat models when Foundry Local is available in the environment.
+
+---
+
+## Assignment Alignment
 
 The assignment document describes a Local RAG AI Assistant with Microsoft Foundry Local. The expected project is a local document Q&A assistant that retrieves relevant content from a small document collection and uses that retrieved context to generate answers.
 
@@ -39,7 +51,7 @@ This project implements the core RAG pipeline required by the document:
 
 ---
 
-## 3. Implemented RAG Pipeline
+## Implemented RAG Pipeline
 
 ```text
 Documents → Document Loader → Text Chunker → Embedding / Vector Representation → SQLite Vector Store → Semantic Retriever → Prompt Builder → Answer Generator → Source-Cited Answer
@@ -55,22 +67,7 @@ Documents → Document Loader → Text Chunker → Embedding / Vector Representa
 
 ---
 
-## 4. Microsoft Foundry Local Context
-
-The assignment document targets Microsoft Foundry Local for offline model inference. This project is structured with a Microsoft Foundry Local-ready architecture by separating embedding generation, vector storage, retrieval, prompt building, and answer generation into independent modules.
-
-Current runtime mode:
-- **Embedding mode:** TF-IDF fallback
-- **Vector store:** SQLite `rag.db`
-- **Retrieval:** cosine similarity
-- **Answering:** source-grounded local fallback generation
-- **Execution:** fully offline CLI application
-
-When Microsoft Foundry Local is available in the environment, the embedding and answer generation layers can be extended to use Foundry Local embedding and chat models. In the current setup, the system uses TF-IDF fallback to keep the RAG pipeline working offline without cloud APIs or paid API keys.
-
----
-
-## 5. Features
+## Features
 
 - Terminal-based Local RAG MVP
 - Local document question answering
@@ -90,7 +87,7 @@ When Microsoft Foundry Local is available in the environment, the embedding and 
 
 ---
 
-## 6. Supported File Types
+## Supported File Types
 
 - `.txt` (Plain text files)
 - `.docx` (Microsoft Word documents)
@@ -100,7 +97,7 @@ Scanned PDFs are not supported because OCR is not implemented.
 
 ---
 
-## 7. Installation
+## Installation
 
 To install dependencies, run the following commands:
 ```powershell
@@ -111,7 +108,7 @@ python -m pip install -r requirements.txt
 
 ---
 
-## 8. Run the Application
+## Run the Application
 
 To run the terminal CLI loop:
 ```powershell
@@ -120,7 +117,7 @@ python app.py
 
 ---
 
-## 9. Expected Startup Output
+## Expected Startup Output
 
 ```text
 ==================================================
@@ -140,7 +137,7 @@ Soru sorabilirsiniz. Çıkmak için 'q', 'quit', 'exit' veya 'çıkış' yazın.
 
 ---
 
-## 10. Example Questions
+## Example Questions
 
 - `RAG nedir?`
 - `Bu projenin amacı nedir?`
@@ -157,7 +154,7 @@ Unrelated or current-world questions should return:
 
 ---
 
-## 11. Repository Structure
+## Repository Structure
 
 ```text
 Local RAG Project Management Assistant/
@@ -181,25 +178,26 @@ Local RAG Project Management Assistant/
 
 ---
 
-## 12. How This Matches the Required Project
+## How This Matches the Required Project
 
 | Assignment Requirement | Project Implementation |
 |---|---|
-| Local document Q&A assistant | Implemented with CLI app |
-| RAG pipeline | Implemented as local retrieval + grounded answer pipeline |
-| Document ingestion | Implemented for TXT, DOCX, and text-based PDF |
-| Chunking | Implemented with `text_chunker.py` |
+| Local Q&A assistant | Implemented as terminal-based CLI assistant |
+| RAG pattern | Implemented with retrieval + grounded answer generation |
+| Local document collection | Implemented with documents/ folder |
+| Document ingestion | Implemented in document_loader.py |
+| Chunking | Implemented in text_chunker.py |
 | Embeddings / vector representation | Implemented with local TF-IDF fallback |
-| SQLite storage | Implemented with `rag.db` |
+| SQLite vector store | Implemented with rag.db |
 | Semantic retrieval | Implemented with cosine similarity |
-| Prompt engineering | Implemented with `prompt_builder.py` |
+| Prompt engineering | Implemented in prompt_builder.py |
 | Source citations | Implemented with source file and chunk ID |
 | Offline execution | Implemented |
-| Foundry Local architecture | Project is structured to be Foundry Local-ready |
+| Microsoft Foundry Local architecture | Project is structured to be Foundry Local-ready |
 
 ---
 
-## 13. Limitations
+## Limitations
 
 - Current runtime uses TF-IDF fallback instead of active Foundry Local models.
 - Current answer generation is local extractive/source-grounded fallback.
@@ -210,7 +208,7 @@ Local RAG Project Management Assistant/
 
 ---
 
-## 14. Future Improvements
+## Future Improvements
 
 - Activate Microsoft Foundry Local embedding model
 - Add Microsoft Foundry Local chat model generation
@@ -222,6 +220,6 @@ Local RAG Project Management Assistant/
 
 ---
 
-## 15. Final Statement
+## Final Statement
 
-This project demonstrates a working Local RAG MVP pipeline for project management documents with offline execution, local document ingestion, chunking, vector-based retrieval, SQLite storage, prompt construction, and source-grounded answer generation. It is aligned with the Local RAG AI Assistant with Microsoft Foundry Local project requirements and is structured for future Foundry Local model integration.
+This project demonstrates a working Local RAG MVP pipeline for project management documents with offline execution, local document ingestion, chunking, vector-based retrieval, SQLite storage, prompt construction, source-grounded answer generation, and Microsoft Foundry Local-ready architecture.
