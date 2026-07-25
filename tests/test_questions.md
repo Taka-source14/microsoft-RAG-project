@@ -43,3 +43,19 @@ Bu soruyla ilgili yerel dokümanlarda yeterli bilgi bulunamadı.
 ## 3. Test Sonuçlarının Doğrulanması
 
 Sistem CLI üzerinden çalıştırılarak (`python app.py`) veya test edilerek doğrulanmıştır. Her iki gruptaki tüm sorular yukarıda belirtilen beklenen davranışları tam olarak sergilemektedir.
+
+---
+
+## 4. DOCX / PDF Desteği Manuel Test Kontrol Listesi
+
+PDF ve DOCX dosyalarının başarıyla yüklenebildiğini ve sorgulanabildiğini manuel olarak test etmek için aşağıdaki adımları izleyin:
+
+1. `documents/` klasörüne örnek bir `.docx` dosyası yerleştirin (örn: `ek_plan.docx`, içerik: "Sanal ortam kurulumu birinci aşamada tamamlanacaktır.")
+2. `documents/` klasörüne metin tabanlı bir `.pdf` dosyası yerleştirin (örn: `ek_riskler.pdf`, içerik: "Bütçe aşımı riski projenin dördüncü haftasında kritik seviyeye ulaşabilir.")
+3. Uygulamayı başlatın: `python app.py`
+4. Yeni dosyaların başarıyla yüklendiğini teyit edin (Yüklenen doküman ve oluşturulan chunk sayısı artacaktır).
+5. Şu soruyu sorun: `Kurulum hangi aşamada tamamlanacak?`
+6. Cevabın `ek_plan.docx` kaynağını gösterdiğini doğrulayın.
+7. Şu soruyu sorun: `Bütçe aşımı riski ne zaman kritik olacak?`
+8. Cevabın `ek_riskler.pdf` kaynağını gösterdiğini doğrulayın.
+9. Taranmış (yalnızca resim içeren) veya içi tamamen boş bir PDF/DOCX yerleştirerek uygulamanın hata vermeden çalıştığını, terminalde *"okunabilir metin bulunamadı. Dosya atlandı."* uyarısı vererek bu dosyayı güvenle atladığını doğrulayın.

@@ -8,6 +8,7 @@ def main():
     print("==================================================")
     print("   YBS Proje Takip Asistanı (Local RAG MVP)       ")
     print("==================================================")
+    print("Supported file types: .txt, .docx, .pdf")
     print("Uygulama başlatılıyor...\n")
 
     try:

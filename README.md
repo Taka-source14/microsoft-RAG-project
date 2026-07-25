@@ -20,7 +20,7 @@ Bu asistan:
 
 ## RAG (Retrieval-Augmented Generation) Nedir?
 
-RAG, yapay zeka modelinin bir soruya cevap vermeden önce harici bir bilgi tabanından (bu projede yerel `.txt` dosyaları) ilgili bilgileri sorgulayıp getirmesi ve bu bilgileri kullanarak cevap üretmesi yöntemidir.
+RAG, yapay zeka modelinin bir soruya cevap vermeden önce harici bir bilgi tabanından (bu projede yerel `.txt`, `.docx` ve `.pdf` dosyaları) ilgili bilgileri sorgulayıp getirmesi ve bu bilgileri kullanarak cevap üretmesi yöntemidir.
 
 Süreç temel olarak 3 adımdan oluşur:
 1. **Retrieval (Bilgi Getirme):** Kullanıcının sorusuyla en alakalı doküman parçaları (chunklar) bulunur.
@@ -56,7 +56,7 @@ Local RAG Project Management Assistant/
 ├── tests/                  # Test planı ve örnek sorular
 │   └── test_questions.md
 │
-├── requirements.txt        # Proje bağımlılıkları (CLI için boştur)
+├── requirements.txt        # Proje bağımlılıkları (python-docx, pypdf)
 └── .gitignore              # Git tarafından takip edilmeyecek dosyalar
 ```
 
@@ -64,7 +64,7 @@ Local RAG Project Management Assistant/
 
 ## Nasıl Çalışır?
 
-1. **Doküman Yükleme:** `documents/` klasöründeki tüm Türkçe `.txt` dosyaları UTF-8 kodlamasıyla okunur.
+1. **Doküman Yükleme:** `documents/` klasöründeki tüm `.txt` (UTF-8), `.docx` (Word) ve `.pdf` (metin tabanlı PDF) dosyaları yüklenir. Okunamayan boş veya taranmış resim-tabanlı dosyalar atlanır.
 2. **Parçalara Bölme (Chunking):** Dokümanlar, anlam bütünlüğünü korumak adına çift satır boşluklarından (`\n\n`) bölünerek paragraflara ayrılır. Her parçaya özgün bir `chunk_id` verilir.
 3. **Türkçe Tokenizasyon:** Kullanıcı sorusu ve doküman parçaları Türkçe karakter duyarlılığıyla (büyük/küçük harf dönüşümleri: `İ` -> `i`, `I` -> `ı` vb.) temizlenir ve kelimelerine ayrılır.
 4. **Stopwords (Dolgu Kelimeleri) Filtreleme:** Türkçe dilindeki etkisiz kelimeler (`ve`, `veya`, `ile`, `için`, `bu`, `şu`, `bir`, `de`, `da`, `ne`, `nedir`, `nasıl`, `hangi`, `nelerdir`, `mı`, `mi`, `mu`, `mü`) elenerek sadece anlamlı kelimeler tutulur.
@@ -95,7 +95,7 @@ source venv/bin/activate
 ```
 
 ### 3. Bağımlılıkları Yükleyin
-*(CLI MVP sürümü Python standart kütüphanelerini kullandığı için harici paket gerektirmez. Ancak dosya standart uyumluluk için mevcuttur)*
+*(Yeni eklenen DOCX ve PDF desteği için python-docx ve pypdf kütüphaneleri venv içerisine kurulur)*
 ```bash
 pip install -r requirements.txt
 ```
@@ -126,7 +126,8 @@ Eğer dokümanlarda bulunmayan alakasız bir soru sorulursa sistem halüsinasyon
 
 ## Mevcut Durum (MVP Sürümü)
 
-* [x] Yerel dokümanlar başarıyla yükleniyor.
+* [x] Yerel dokümanlar (.txt, .docx, .pdf) başarıyla yükleniyor.
+* [x] Okunamayan taranmış (resim tabanlı) PDF'ler güvenle atlanarak sistemin çökmesi önleniyor.
 * [x] Dokümanlar paragraf tabanlı mantıklı parçalara (chunk) bölünüyor.
 * [x] Türkçe karakter uyumlu tokenizasyon ve stopwords temizleme yapılıyor.
 * [x] Anahtar kelime eşleşmesi baz alınarak en alakalı bölümler puanlanıp getiriliyor.
@@ -142,7 +143,8 @@ Eğer dokümanlarda bulunmayan alakasız bir soru sorulursa sistem halüsinasyon
 * **Embedding Tabanlı Semantik Arama:** Anahtar kelime eşleşmesi yerine vektör benzerliği (Cosine Similarity) kullanılarak eşanlamlı kelimeler içeren soruların da bulunabilmesi.
 * **SQLite Vektör Depolama:** Chunk ve vektör verilerinin RAM yerine yerel SQLite veritabanında saklanarak hızlandırılması.
 * **Streamlit Web Arayüzü:** CLI yerine kullanıcı dostu modern bir Streamlit arayüzünün sunulması.
-* **PDF ve DOCX Desteği:** Sadece `.txt` değil, `.pdf` ve `.docx` formatındaki dokümanların da okunabilmesi.
+* **PDF ve DOCX Desteği:** Sadece `.txt` değil, `.pdf` ve `.docx` formatındaki dokümanların da okunabilmesi (Tamamlandı).
+* **OCR Entegrasyonu:** Taranmış (scanned) veya resim tabanlı PDF'lerden metin okuyabilmek için Tesseract OCR entegrasyonunun yapılması.
 
 ---
 

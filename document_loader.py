@@ -1,9 +1,34 @@
 from pathlib import Path
+from docx import Document
+from pypdf import PdfReader
+
+
+def load_txt_file(file_path: Path) -> str:
+    """Reads a .txt file with UTF-8 encoding."""
+    return file_path.read_text(encoding="utf-8").strip()
+
+
+def load_docx_file(file_path: Path) -> str:
+    """Reads a .docx file using python-docx."""
+    doc = Document(file_path)
+    paragraphs = [p.text for p in doc.paragraphs]
+    return "\n".join(paragraphs).strip()
+
+
+def load_pdf_file(file_path: Path) -> str:
+    """Reads a text-based .pdf file using pypdf."""
+    reader = PdfReader(file_path)
+    text_parts = []
+    for page in reader.pages:
+        text = page.extract_text()
+        if text:
+            text_parts.append(text)
+    return "\n".join(text_parts).strip()
 
 
 def load_documents(folder_path: str = "documents") -> list[dict]:
     """
-    Loads all .txt documents from the given folder.
+    Loads all .txt, .docx, and .pdf documents from the given folder.
 
     Each document is returned as a dictionary with:
     - source: file name
@@ -19,12 +44,28 @@ def load_documents(folder_path: str = "documents") -> list[dict]:
 
     documents = []
 
-    for file_path in folder.glob("*.txt"):
+    for file_path in folder.iterdir():
+        if file_path.is_dir():
+            continue
+
+        suffix = file_path.suffix.lower()
+        if suffix not in [".txt", ".docx", ".pdf"]:
+            continue
+
         try:
-            content = file_path.read_text(encoding="utf-8").strip()
-            
-            # Load even if empty, or skip if size/content is empty. 
-            # We will load it but keep it safe.
+            content = ""
+            if suffix == ".txt":
+                content = load_txt_file(file_path)
+            elif suffix == ".docx":
+                content = load_docx_file(file_path)
+            elif suffix == ".pdf":
+                content = load_pdf_file(file_path)
+
+            # Skip the file if it has no readable text (empty or scanned PDF)
+            if not content:
+                print(f"Uyarı: {file_path.name} dosyasında okunabilir metin bulunamadı. Dosya atlandı.")
+                continue
+
             documents.append({
                 "source": file_path.name,
                 "content": content
