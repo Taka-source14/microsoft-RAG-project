@@ -327,6 +327,10 @@ erDiagram
 
 ## 14. Current Implemented Architecture
 
+```text
+Documents → Loader → Chunker → TF-IDF Embeddings → SQLite rag.db → Semantic Retriever → Prompt Builder → Local Extractive/Fallback Answer → Sources
+```
+
 Şu anda YBS Proje Takip Asistanı'nda tam olarak çalışan RAG mimarisi şu şekildedir:
 - **Doküman Yükleme:** `documents/` altındaki `.txt`, `.docx`, ve metin tabanlı `.pdf` dosyalarını temiz bir şekilde yükler.
 - **Parçalama (Chunking):** Paragraf sınırlarını koruyarak maksimum 800 karakter boyutunda parçalar oluşturur.
@@ -338,9 +342,13 @@ erDiagram
 
 ---
 
-## 15. Target Full Foundry Local Architecture
+## 15. Target Foundry Local Architecture
+
+```text
+Documents → Loader → Chunker → Foundry Local Embeddings → SQLite/Vector Store → Semantic Retriever → Prompt Builder → Foundry Local Chat Model → Grounded Answer with Sources
+```
 
 Gelecek aşamalarda hedeflenen tam Microsoft Foundry Local entegrasyonu:
 - **Embedding:** Microsoft Foundry Local SDK üzerinden yerel çalışan yüksek başarımlı bir dense embedding modeli (örneğin BERT veya MiniLM tabanlı) ile metinleri vektörleştirme.
 - **Vektör Deposu:** SQLite üzerinde JSON aramak yerine, pgvector benzeri bir yerel vektör eklentisi veya doğrudan SQLite-vss entegrasyonu ile hızlı ANN aramaları yapma.
-- **Local LLM:** Yerel donanım üzerinde (CPU/GPU) barındırılan Llama-3 veya Mistral benzeri 7B parametreli bir Foundry Local LLM modeli ile prompt'ları işleyip yüksek kaliteli, özetlenmiş, doğal dilde cevaplar üretme.
+- **Local LLM:** Yerel donanım üzerinde (CPU/GPU) barındırılan Llama-3 veya Mistral benzeri 7B parametreli bir Foundry Local LLM modeli (Chat Model) ile prompt'ları işleyip yüksek kaliteli, özetlenmiş, doğal dilde cevaplar üretme.

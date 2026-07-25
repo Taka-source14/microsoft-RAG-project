@@ -1,88 +1,111 @@
 # YBS Proje Takip Asistanı (Local RAG Project Management Assistant)
 
-YBS Proje Takip Asistanı, Yönetim Bilişim Sistemleri (YBS) proje yönetimi dokümanlarını okuyup, kullanıcının proje süreciyle ilgili sorularına kaynak göstererek güvenilir ve kısa cevaplar veren yerel bir **RAG (Retrieval-Augmented Generation)** uygulamasıdır.
-
-Bu proje, harici bulut servislerine, ücretli API'lere veya internet bağlantısına bağımlı olmadan tamamen çevrimdışı (offline) ve yerel çalışacak şekilde tasarlanmış bir terminal (CLI) uygulamasıdır.
+This project is a terminal-based Local RAG MVP. It implements document loading, chunking, local embedding/vector representation, SQLite vector storage, semantic retrieval with cosine similarity, prompt building, and source-based answer generation. If Microsoft Foundry Local is available, the architecture is ready for local model integration. If Foundry Local is not available, the system runs fully offline using a TF-IDF fallback retrieval mode.
 
 ---
 
-## Current RAG Pipeline
+## 1. Project Overview & Problem Solved
 
-Sistem aşağıdaki tam RAG boru hattı (pipeline) akışını takip eder:
+Managing project timelines, requirements, and deliverables can involve scanning through long document files. This project acts as an offline, private, and local **Retrieval-Augmented Generation (RAG)** assistant. It reads your project documents and answers natural language questions using only the context found within those files.
 
+This solves the problem of information accessibility in project management without relying on cloud-based LLM APIs, preserving data privacy and ensuring complete offline functionality.
+
+---
+
+## 2. Current Implemented RAG Pipeline
+
+The system utilizes the following local data flow:
 ```text
-Documents → Loader → Chunker → Embeddings → SQLite Vector Store → Semantic Retriever → Prompt Builder → Local LLM/Fallback Generator → Source-based Answer
+Documents Folder → Document Loader → Text Chunker → TF-IDF Fallback Embedding → SQLite Vector Store (rag.db) → Cosine Similarity Semantic Retriever → Prompt Builder → Extractive Fallback Generator → Source-Cited Answer
 ```
 
-1. **Documents & Loader (`document_loader.py`):** `documents/` klasöründeki `.txt`, `.docx` ve `.pdf` dosyalarını yükler. Boş veya taranmış (resim tabanlı) dosyaları güvenle atlar.
-2. **Chunker (`text_chunker.py`):** Dokümanları paragraf sınırlarına ve maksimum 800 karakter limitine göre anlamlı parçalara (chunk) böler.
-3. **Embeddings (`embedding_generator.py`):** Microsoft Foundry Local SDK yüklüyse Foundry Local embedding modelini kullanır. Aksi halde yerel `scikit-learn` TF-IDF vektörleştirici ile çevrimdışı fallback embedding'ler üretir.
-4. **SQLite Vector Store (`vector_store.py`):** Chunk metinlerini, kaynak yollarını ve embedding dizilerini `rag.db` adlı yerel SQLite veritabanına kaydeder.
-5. **Semantic Retriever (`semantic_retriever.py`):** Kullanıcı sorusunu vektöre çevirir ve SQLite'taki chunk vektörleri ile **Cosine Similarity** (Kosinüs Benzerliği) hesaplayarak en yakın 3 chunk'ı çeker. Başarısızlık durumunda otomatik olarak anahtar kelime tabanlı aramaya geçer.
-6. **Prompt Builder (`prompt_builder.py`):** Bulunan ilgili metin parçalarını, asistan kuralları ve kullanıcı sorusu ile birleştirerek grounded (dokümana dayalı) bir Türkçe prompt hazırlar.
-7. **Local LLM/Fallback Generator (`response_generator.py`):** Microsoft Foundry Local LLM yüklüyse prompt'u yerel LLM'e göndererek cevap üretir. Aksi halde yerel context'ten en alakalı cümleleri seçen akıllı fallback modunu çalıştırır.
+1. **Document Loader (`document_loader.py`):** Loads and reads `.txt` (UTF-8), Word `.docx`, and text-based `.pdf` files. Skips scanned (image-only) PDFs or empty files and raises a warning.
+2. **Text Chunker (`text_chunker.py`):** Splits document contents into chunks of maximum 800 characters, respecting paragraph and sentence boundaries.
+3. **Embedding Generator (`embedding_generator.py`):** Computes vector embeddings. When Microsoft Foundry Local SDK is absent, it uses a local `scikit-learn` TF-IDF vectorizer fallback.
+4. **Vector Store (`vector_store.py`):** Rebuilds and stores all chunks, sources, and vector lists in a local SQLite database named `rag.db`.
+5. **Semantic Retriever (`semantic_retriever.py`):** Transforms queries into vectors and scores all database chunks using **Cosine Similarity**. Matches below a `0.25` similarity score are ignored. If no matches are found, it falls back to the keyword-based retriever.
+6. **Prompt Builder (`prompt_builder.py`):** Combines the user query with matching context blocks to build a grounded prompt in Turkish.
+7. **Response Generator (`response_generator.py`):** Runs the answer generator. Since Foundry Local is in fallback mode, it triggers the local extractive engine to retrieve the most relevant sentence structures and lists sources with their similarity scores.
 
 ---
 
-## Proje Yapısı
-
-```text
-Local RAG Project Management Assistant/
-│
-├── app.py                  # CLI uygulamasının giriş noktası ve RAG akışı
-├── document_loader.py      # TXT, DOCX ve PDF yükleme modülü
-├── text_chunker.py         # Metinleri karakter limitli (800) chunklara bölme modülü
-├── embedding_generator.py  # Foundry Local / TF-IDF embedding modülü (Yeni)
-├── vector_store.py         # SQLite veritabanı (rag.db) yönetim modülü (Yeni)
-├── semantic_retriever.py   # Cosine similarity tabanlı semantik arama modülü (Yeni)
-├── prompt_builder.py       # LLM için RAG prompt oluşturma modülü (Yeni)
-├── retriever.py            # Anahtar kelime tabanlı yedek arama modülü
-├── response_generator.py   # LLM ve fallback tabanlı cevap oluşturma modülü
-│
-├── documents/              # Bilgi tabanını oluşturan yerel dosyalar (.txt, .docx, .pdf)
-├── docs/                   # Proje mimari ve tasarım dokümantasyonu (architecture.md)
-├── tests/                  # Test planı ve örnek sorular (test_questions.md)
-├── requirements.txt        # Proje bağımlılıkları
-└── .gitignore              # rag.db ve sanal ortam dosyalarını hariç tutar
-```
+## 3. Supported File Types
+* **`.txt`**: Read with standard UTF-8 encoding.
+* **`.docx`**: Parsed using `python-docx`.
+* **`.pdf`**: Text-based PDFs parsed using `pypdf`. (Scanned, image-based, or non-text PDFs are skipped with a warning).
 
 ---
 
-## Kurulum ve Çalıştırma
+## 4. Installation & Setup
 
-### 1. Sanal Ortamı Aktif Edin (Mevcutsa) veya Oluşturun
+Ensure Python 3.8+ is installed on your Windows system.
+
+### Step 1: Create and Activate Virtual Environment
 ```powershell
 python -m venv venv
 venv\Scripts\activate
 ```
 
-### 2. Bağımlılıkları Yükleyin
+### Step 2: Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. CLI Uygulamasını Çalıştırın
+---
+
+## 5. Running the Application
+
+To run the terminal-based interactive CLI loop, execute:
 ```bash
 python app.py
 ```
 
+### Expected Startup Terminal Output:
+```text
+==================================================
+   YBS Proje Takip Asistanı (Local RAG Pipeline)  
+==================================================
+Supported file types: .txt, .docx, .pdf
+Uygulama başlatılıyor...
+
+Documents loaded: 6
+Chunks created: 580
+Foundry Local embedding model not available. Using local TF-IDF fallback for semantic retrieval.
+Embedding mode: TF-IDF fallback
+Vector store: rag.db
+RAG pipeline ready.
+
+Soru sorabilirsiniz. Çıkmak için 'q', 'quit', 'exit' veya 'çıkış' yazın.
+
+Soru: 
+```
+
 ---
 
-## Örnek Sorular
+## 6. Example Questions
 
-Uygulama çalıştıktan sonra sorabileceğiniz örnek sorular:
-* `RAG nedir?`
-* `Bu projenin amacı nedir?`
-* `Titanic EDA programı kaç haftalık?`
-* `Day 5'te ne anlatılıyor?`
-* `Bugün hava nasıl?` (Alakasız soru fallback testi)
-* `Bitcoin fiyatı kaç?` (Alakasız soru fallback testi)
+Once the application is running, you can test it with the following questions:
+
+| Question | Expected Behavior |
+| --- | --- |
+| `RAG nedir?` | Returns a concise explanation and links source/chunk metadata |
+| `Bu projenin amacı nedir?` | Returns the project goal from `proje_amaci.txt` |
+| `Foundry Local nedir?` | Returns details from the document mentioning Foundry Local |
+| `Embedding ne işe yarar?` | Returns embedding explanations |
+| `Vector search ne işe yarar?` | Returns vector search explanations |
+| `Bugün hava nasıl?` | Returns fallback message: *"Bu soruyla ilgili yerel dokümanlarda yeterli bilgi bulunamadı."* |
+| `Bitcoin fiyatı kaç?` | Returns fallback message: *"Bu soruyla ilgili yerel dokümanlarda yeterli bilgi bulunamadı."* |
 
 ---
 
-## Limitations (Sınırlamalar)
+## 7. Current Limitations & Future Improvements
 
-* **Foundry Local Entegrasyonu:** Tam entegrasyon yerel sistemde Microsoft Foundry Local ortamının/paketlerinin kurulu olmasına bağlıdır. Bulunmadığında sistem otomatik ve güvenli şekilde yerel TF-IDF ve extractive fallback moduna geçer.
-* **Fallback Modu Sınırları:** LLM bulunmadığında çalışan fallback modu, serbest üretim yapmak yerine doğrudan doküman cümlelerini seçerek cevap verir; bu nedenle tam bir LLM kadar akıcı özetleme yapamaz.
-* **Taranmış PDF'ler:** OCR (Optik Karakter Tanıma) entegre edilmediği için sadece metin tabanlı PDF'ler desteklenir.
-* **Optimizasyon:** Çok büyük doküman setleri için (1000+ sayfa) TF-IDF ve SQLite bellek içi aramalar yerine daha gelişmiş vektör veritabanları (FAISS, Chroma vb.) gerekebilir.
+### Current Limitations:
+* **Honest Foundry Local Status:** Currently running in **fallback mode** (using local TF-IDF embeddings and an extractive fallback response generation engine) since the Microsoft Foundry Local environment is not installed on this system.
+* **No OCR Support:** Scanned or image-only PDF files cannot be processed and are skipped.
+* **Simplified Fallback Generator:** The fallback response generator extracts sentences directly from matching chunks; it does not synthesize new text.
+
+### Future Improvements:
+* **Direct Microsoft Foundry Local Integration:** Hooking up dense embedding and chat models once the Foundry Local SDK becomes available.
+* **SQLite-vss / FAISS Integration:** Replacing linear cosine similarity checks with structured vector index matching for large-scale operations.
+* **OCR support:** Integrating `pytesseract` to extract text from scanned documents.
