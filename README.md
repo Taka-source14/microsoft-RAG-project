@@ -1,397 +1,151 @@
-# microsoft-RAG-project
-YBS proje dokümanlarını okuyup, kullanıcının proje süreciyle ilgili sorularına kaynaklı cevap veren yerel RAG asistanı.
+# YBS Proje Takip Asistanı (Local RAG Project Management Assistant)
 
+YBS Proje Takip Asistanı, Yönetim Bilişim Sistemleri (YBS) proje yönetimi dokümanlarını okuyup, kullanıcının proje süreciyle ilgili sorularına kaynak göstererek güvenilir cevaplar veren yerel bir **RAG (Retrieval-Augmented Generation)** uygulamasıdır.
 
-# YBS Project Tracking Assistant
-
-## Local RAG Project Management Assistant with Microsoft Foundry Local
-
-YBS Project Tracking Assistant is a local Retrieval-Augmented Generation (RAG) application designed to support project management and progress tracking in Management Information Systems (MIS/YBS) projects.
-
-The application answers user questions by retrieving relevant information from local project documents such as project goals, weekly plans, task lists, delivery criteria, risks, and presentation notes. Instead of generating answers only from the model’s general knowledge, the system first searches the local document collection and then generates a grounded response using the retrieved context.
-
-This project was developed as part of the Microsoft Türkiye Summer School program under the topic:
-
-**Building Your First Local RAG Application with Foundry Local**
+Bu proje, harici bulut servislerine veya ücretli API'lere bağımlı olmadan tamamen çevrimdışı (offline) ve yerel çalışacak şekilde tasarlanmış bir MVP (Minimum Viable Product) sürümüdür.
 
 ---
 
-## Project Purpose
+## Projenin Temel Amacı ve Geliştirilme Nedeni
 
-The main purpose of this project is to build a simple, useful, and locally running AI assistant that helps users follow and manage a project more effectively.
+Proje yönetimi süreçlerinde hedefler, haftalık planlar, riskler ve görevler genellikle farklı dokümanlarda veya notlarda dağınık şekilde tutulur. Kullanıcılar aradıkları bilgiyi bulmak için bu dosyalar arasında manuel arama yapmak zorunda kalır. 
 
-The assistant can answer questions such as:
-
-* What is the goal of the project?
-* What tasks should be completed this week?
-* What are the project delivery criteria?
-* Which risks should be considered?
-* How should the project be presented?
-* What is RAG and how is it used in this project?
-* What documents are used as the knowledge base?
-
-This makes the project useful not only as a technical RAG implementation, but also as a practical project management support tool.
+Bu asistan:
+* Proje dokümanlarını merkezi hale getirir.
+* Doğal dildeki soruları analiz ederek ilgili paragrafları hızlıca bulur.
+* Tamamen yerel dokümanlardaki bilgilere sadık kalarak (halüsinasyon üretmeden) yanıt verir.
+* Yanıtların hangi doküman ve hangi bölümden (Chunk ID) alındığını şeffaf bir şekilde listeler.
 
 ---
 
-## What is RAG?
+## RAG (Retrieval-Augmented Generation) Nedir?
 
-RAG stands for **Retrieval-Augmented Generation**.
+RAG, yapay zeka modelinin bir soruya cevap vermeden önce harici bir bilgi tabanından (bu projede yerel `.txt` dosyaları) ilgili bilgileri sorgulayıp getirmesi ve bu bilgileri kullanarak cevap üretmesi yöntemidir.
 
-It is an AI approach where the system:
-
-1. Retrieves relevant information from a document collection.
-2. Adds the retrieved information as context.
-3. Generates an answer based on that context.
-
-In this project, the assistant does not answer randomly or only from general model knowledge. It first searches the project documents and then produces an answer using the most relevant document chunks.
+Süreç temel olarak 3 adımdan oluşur:
+1. **Retrieval (Bilgi Getirme):** Kullanıcının sorusuyla en alakalı doküman parçaları (chunklar) bulunur.
+2. **Augmentation (Zenginleştirme):** Bulunan bilgiler prompt içerisine bağlam (context) olarak yerleştirilir.
+3. **Generation (Cevap Üretme):** Model/sistem sadece bu bağlama dayanarak cevabı oluşturur.
 
 ---
 
-## Key Features
-
-* Local document-based question answering
-* Retrieval-Augmented Generation pipeline
-* Microsoft Foundry Local integration
-* Local inference without cloud dependency
-* Project management focused knowledge base
-* Source-aware answers
-* Simple and understandable project structure
-* Suitable for MIS/YBS project tracking scenarios
-
----
-
-## Example Use Case
-
-A user asks:
+## Proje Yapısı
 
 ```text
-What should I complete in the second week of the project?
-```
-
-The system searches the local project documents, finds the relevant part from the weekly plan, and generates an answer such as:
-
-```text
-In the second week, you should focus on preparing the project documents, splitting them into chunks, generating embeddings, and testing the retrieval process.
-```
-
-The assistant may also show the source document:
-
-```text
-Source: weekly_plan.txt
-```
-
----
-
-## Project Architecture
-
-The basic workflow of the project is:
-
-```text
-Local Documents
-      ↓
-Document Loading
-      ↓
-Text Chunking
-      ↓
-Embedding Generation
-      ↓
-Similarity Search
-      ↓
-Relevant Context Retrieval
-      ↓
-Answer Generation with Foundry Local
-      ↓
-User Response
-```
-
----
-
-## Technologies Used
-
-* Python
-* Microsoft Foundry Local
-* RAG architecture
-* Embeddings
-* Cosine similarity
-* Local text documents
-* Streamlit or CLI interface
-* SQLite, optional for persistent storage
-
----
-
-## Project Folder Structure
-
-```text
-ybs-rag-project-assistant/
+Local RAG Project Management Assistant/
 │
-├── app.py
-├── rag_pipeline.py
-├── document_loader.py
-├── requirements.txt
-├── README.md
+├── app.py                  # CLI uygulamasının giriş noktası ve Q&A döngüsü
+├── document_loader.py      # Doküman yükleme ve hata kontrolü modülü
+├── text_chunker.py         # Metinleri paragraflara (chunk) bölme modülü
+├── retriever.py            # Türkçe NLP tabanlı anahtar kelime arama modülü
+├── response_generator.py   # Grounded (bağlama dayalı) cevap oluşturma modülü
 │
-├── documents/
-│   ├── project_goal.txt
-│   ├── weekly_plan.txt
-│   ├── task_list.txt
-│   ├── delivery_criteria.txt
-│   ├── risks.txt
-│   ├── presentation_notes.txt
-│   └── rag_explanation.txt
+├── documents/              # Bilgi tabanını oluşturan yerel dosyalar
+│   ├── proje_amaci.txt
+│   ├── haftalik_plan.txt
+│   ├── gorev_listesi.txt
+│   ├── teslim_kriterleri.txt
+│   ├── riskler.txt
+│   ├── sunum_notlari.txt
+│   └── rag_aciklamasi.txt
 │
-└── tests/
-    └── test_questions.md
+├── docs/                   # Proje mimari ve tasarım dokümantasyonu
+│   ├── architecture.md
+│   └── project_roadmap.md
+│
+├── tests/                  # Test planı ve örnek sorular
+│   └── test_questions.md
+│
+├── requirements.txt        # Proje bağımlılıkları (CLI için boştur)
+└── .gitignore              # Git tarafından takip edilmeyecek dosyalar
 ```
 
 ---
 
-## Documents Used in the Knowledge Base
+## Nasıl Çalışır?
 
-The assistant uses a small local document collection related to the project management process.
-
-Example documents:
-
-| Document                 | Description                                   |
-| ------------------------ | --------------------------------------------- |
-| `project_goal.txt`       | Explains the purpose and scope of the project |
-| `weekly_plan.txt`        | Contains weekly project activities            |
-| `task_list.txt`          | Lists project tasks and responsibilities      |
-| `delivery_criteria.txt`  | Defines the expected final deliverables       |
-| `risks.txt`              | Describes possible project risks              |
-| `presentation_notes.txt` | Includes notes for the final presentation     |
-| `rag_explanation.txt`    | Explains RAG and its role in the project      |
+1. **Doküman Yükleme:** `documents/` klasöründeki tüm Türkçe `.txt` dosyaları UTF-8 kodlamasıyla okunur.
+2. **Parçalara Bölme (Chunking):** Dokümanlar, anlam bütünlüğünü korumak adına çift satır boşluklarından (`\n\n`) bölünerek paragraflara ayrılır. Her parçaya özgün bir `chunk_id` verilir.
+3. **Türkçe Tokenizasyon:** Kullanıcı sorusu ve doküman parçaları Türkçe karakter duyarlılığıyla (büyük/küçük harf dönüşümleri: `İ` -> `i`, `I` -> `ı` vb.) temizlenir ve kelimelerine ayrılır.
+4. **Stopwords (Dolgu Kelimeleri) Filtreleme:** Türkçe dilindeki etkisiz kelimeler (`ve`, `veya`, `ile`, `için`, `bu`, `şu`, `bir`, `de`, `da`, `ne`, `nedir`, `nasıl`, `hangi`, `nelerdir`, `mı`, `mi`, `mu`, `mü`) elenerek sadece anlamlı kelimeler tutulur.
+5. **Skorlama ve Arama:** Soru kelimeleri ile doküman parçaları arasındaki kelime çakışması (keyword overlap) hesaplanır. En yüksek skora sahip ilk 3 parça seçilir.
+6. **Kaynaklı Cevap Üretimi:** Seçilen parçaların içerikleri birleştirilerek cevap oluşturulur ve en sona ilgili kaynak dosyalar ile Chunk ID bilgileri eklenir. Eğer hiçbir kelime çakışması yoksa, sistem güvenli bir şekilde bilgi bulunamadığını belirtir.
 
 ---
 
-## Installation
+## Kurulum ve Çalıştırma
 
-Clone the repository:
-
+### 1. Depoyu Klonlayın
 ```bash
-git clone https://github.com/your-username/ybs-rag-project-assistant.git
-cd ybs-rag-project-assistant
+git clone https://github.com/Taka-source14/microsoft-RAG-project.git
+cd "Local RAG Project Management Assistant"
 ```
 
-Create a virtual environment:
-
-```bash
+### 2. Sanal Ortam Oluşturun ve Aktive Edin
+**Windows için:**
+```powershell
 python -m venv venv
-```
-
-Activate the virtual environment:
-
-For Windows:
-
-```bash
 venv\Scripts\activate
 ```
 
-For macOS/Linux:
-
+**macOS/Linux için:**
 ```bash
+python3 -m venv venv
 source venv/bin/activate
 ```
 
-Install the required packages:
-
+### 3. Bağımlılıkları Yükleyin
+*(CLI MVP sürümü Python standart kütüphanelerini kullandığı için harici paket gerektirmez. Ancak dosya standart uyumluluk için mevcuttur)*
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
-## Running the Application
-
-For a simple command-line version:
-
+### 4. CLI Uygulamasını Çalıştırın
 ```bash
 python app.py
 ```
 
-For a Streamlit interface:
+---
 
-```bash
-streamlit run app.py
-```
+## Örnek Sorular
 
-After running the application, the user can ask questions about the project documents.
+Uygulama çalıştıktan sonra aşağıdaki örnek soruları yöneltebilirsiniz:
+* **Soru:** `Bu projenin amacı nedir?`
+* **Soru:** `RAG nedir?`
+* **Soru:** `Teslim kriterleri nelerdir?`
+* **Soru:** `Projede hangi riskler var?`
+* **Soru:** `3. haftada ne yapılacak?`
+* **Soru:** `Sunumda ne anlatmalıyım?`
 
-Example:
-
-```text
-What are the delivery criteria of this project?
-```
+### Alakasız Sorular (Bilgi Bulunamayan Durumlar)
+Eğer dokümanlarda bulunmayan alakasız bir soru sorulursa sistem halüsinasyon üretmez:
+* **Soru:** `Bugün hava nasıl?`
+* **Cevap:** `Bu soruyla ilgili yerel dokümanlarda yeterli bilgi bulunamadı.`
 
 ---
 
-## How It Works
+## Mevcut Durum (MVP Sürümü)
 
-### 1. Document Loading
-
-The system reads local text documents from the `documents/` folder.
-
-### 2. Text Chunking
-
-Long documents are split into smaller text chunks so that the system can search more accurately.
-
-### 3. Embedding Generation
-
-Each chunk is converted into a numerical vector representation using an embedding model.
-
-### 4. Similarity Search
-
-When the user asks a question, the question is also converted into an embedding. The system compares the question embedding with document chunk embeddings and retrieves the most relevant chunks.
-
-### 5. Context-Aware Answer Generation
-
-The retrieved chunks are added to the prompt as context. Then the local language model generates an answer based only on the provided context.
+* [x] Yerel dokümanlar başarıyla yükleniyor.
+* [x] Dokümanlar paragraf tabanlı mantıklı parçalara (chunk) bölünüyor.
+* [x] Türkçe karakter uyumlu tokenizasyon ve stopwords temizleme yapılıyor.
+* [x] Anahtar kelime eşleşmesi baz alınarak en alakalı bölümler puanlanıp getiriliyor.
+* [x] Cevaplar sadece yerel doküman içeriğine dayandırılıyor (Sıfır Halüsinasyon).
+* [x] Kullanılan kaynak dosyaları ve Chunk ID'leri şeffaf bir şekilde listeleniyor.
+* [x] Alakasız sorular güvenli hata mesajıyla karşılanıyor.
 
 ---
 
-## Example Questions
+## Gelecek Geliştirmeler
 
-The assistant can answer questions like:
-
-```text
-What is the main goal of this project?
-```
-
-```text
-Which tasks should be completed in Week 1?
-```
-
-```text
-What are the expected deliverables?
-```
-
-```text
-What are the possible risks of the project?
-```
-
-```text
-How does RAG work in this application?
-```
-
-```text
-How should I explain this project in the final presentation?
-```
+* **Foundry Local ve LLM Entegrasyonu:** Cevapların sadece ham paragraf birleştirmesi yerine yerel çalışan hafif bir LLM (Foundry Local veya yerel Llama/Mistral) ile daha akıcı ve özetlenmiş hale getirilmesi.
+* **Embedding Tabanlı Semantik Arama:** Anahtar kelime eşleşmesi yerine vektör benzerliği (Cosine Similarity) kullanılarak eşanlamlı kelimeler içeren soruların da bulunabilmesi.
+* **SQLite Vektör Depolama:** Chunk ve vektör verilerinin RAM yerine yerel SQLite veritabanında saklanarak hızlandırılması.
+* **Streamlit Web Arayüzü:** CLI yerine kullanıcı dostu modern bir Streamlit arayüzünün sunulması.
+* **PDF ve DOCX Desteği:** Sadece `.txt` değil, `.pdf` ve `.docx` formatındaki dokümanların da okunabilmesi.
 
 ---
 
-## Expected Output Example
+## Demo Videosu Açıklaması
 
-User question:
-
-```text
-What is the purpose of this project?
-```
-
-Assistant answer:
-
-```text
-The purpose of this project is to develop a local RAG-based project tracking assistant that helps users access project-related information from local documents. The system retrieves relevant information from project documents and generates grounded answers using Microsoft Foundry Local.
-
-Source: project_goal.txt
-```
-
----
-
-## Project Deliverables
-
-The final version of this project will include:
-
-* A working local RAG assistant
-* Local project management documents
-* Document loading and chunking logic
-* Embedding-based retrieval
-* Answer generation with Microsoft Foundry Local
-* Source-aware responses
-* README documentation
-* Test questions and results
-* Demo video or presentation screenshots
-
----
-
-## Test Plan
-
-The project will be tested with two types of questions:
-
-### Answerable Questions
-
-These are questions where the answer exists in the local documents.
-
-Example:
-
-```text
-What are the project delivery criteria?
-```
-
-### Unanswerable Questions
-
-These are questions where the answer does not exist in the local documents.
-
-Example:
-
-```text
-What is the weather today?
-```
-
-In such cases, the assistant should not hallucinate. It should respond with a message such as:
-
-```text
-I could not find enough information in the project documents to answer this question.
-```
-
----
-
-## Evaluation Criteria
-
-The project will be evaluated based on:
-
-* Correct retrieval of relevant document chunks
-* Quality of generated answers
-* Ability to avoid unsupported answers
-* Clear source indication
-* Simple and understandable user experience
-* Clean code structure
-* Complete documentation
-
----
-
-## Why This Project is Useful
-
-Project documents are often scattered across different files and notes. Users may spend time searching for information manually. This assistant helps users access project-related information faster by allowing them to ask natural language questions.
-
-From a Management Information Systems perspective, this project demonstrates how AI can support:
-
-* Knowledge management
-* Project tracking
-* Information retrieval
-* Decision support
-* Documentation management
-* Productivity improvement
-
----
-
-## Future Improvements
-
-Possible future improvements include:
-
-* Adding PDF and DOCX support
-* Storing embeddings in SQLite
-* Adding a Streamlit web interface
-* Adding file upload support
-* Improving source citation quality
-* Adding task status tracking
-* Adding multilingual support
-* Creating a dashboard for project progress
-* Exporting project summaries automatically
-
----
-
-## Project Summary
-
-YBS Project Tracking Assistant is a simple and practical local RAG application that helps users track project progress by answering questions from project documents. It combines document retrieval and local AI response generation to create a useful assistant for project management scenarios.
-
-The project is designed to be beginner-friendly, locally runnable, and suitable for demonstrating the core logic of Retrieval-Augmented Generation using Microsoft Foundry Local.
+MVP sürümünün terminal arayüzündeki çalışma performansını gösteren demo ekran kaydı ileride hazırlanarak proje klasörüne eklenecektir. Uygulamanın terminal çıktılarındaki soru-cevap doğruluğu test aşamasında tam puanla doğrulanmıştır.

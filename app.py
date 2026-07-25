@@ -1,21 +1,33 @@
 from document_loader import load_documents
 from text_chunker import chunk_documents
 from retriever import retrieve_relevant_chunks
+from response_generator import generate_answer
 
 
 def main():
-    print("YBS Proje Takip Asistanı başlatılıyor...\n")
+    print("==================================================")
+    print("   YBS Proje Takip Asistanı (Local RAG MVP)       ")
+    print("==================================================")
+    print("Uygulama başlatılıyor...\n")
 
-    documents = load_documents("documents")
-    print(f"{len(documents)} doküman başarıyla yüklendi.")
+    try:
+        documents = load_documents("documents")
+        print(f"-> {len(documents)} doküman başarıyla yüklendi.")
+    except Exception as e:
+        print(f"Hata: Dokümanlar yüklenemedi: {e}")
+        return
 
     chunks = chunk_documents(documents)
-    print(f"{len(chunks)} chunk başarıyla oluşturuldu.\n")
+    print(f"-> {len(chunks)} chunk başarıyla oluşturuldu.\n")
 
-    print("Soru sorabilirsiniz. Çıkmak için 'q' yazın.\n")
+    print("Soru sorabilirsiniz. Çıkmak için 'q', 'quit', 'exit' veya 'çıkış' yazın.\n")
 
     while True:
-        question = input("Soru: ").strip()
+        try:
+            question = input("Soru: ").strip()
+        except (KeyboardInterrupt, EOFError):
+            print("\nUygulama kapatılıyor...")
+            break
 
         if question.lower() in ["q", "quit", "exit", "çıkış"]:
             print("Uygulama kapatılıyor...")
@@ -25,18 +37,15 @@ def main():
             print("Lütfen bir soru girin.\n")
             continue
 
+        # Retrieve top 3 relevant chunks
         relevant_chunks = retrieve_relevant_chunks(question, chunks, top_k=3)
 
-        if not relevant_chunks:
-            print("\nBu soruyla ilgili dokümanlarda yeterli bilgi bulunamadı.\n")
-            continue
+        # Generate grounded answer
+        answer = generate_answer(question, relevant_chunks)
 
-        print("\nEn alakalı doküman parçaları:\n")
-
-        for index, chunk in enumerate(relevant_chunks, start=1):
-            print(f"{index}. Kaynak: {chunk['source']} - Chunk {chunk['chunk_id']}")
-            print(f"   Skor: {chunk['score']}")
-            print(f"   İçerik: {chunk['content']}\n")
+        print("\nCevap:")
+        print(answer)
+        print("-" * 50 + "\n")
 
 
 if __name__ == "__main__":

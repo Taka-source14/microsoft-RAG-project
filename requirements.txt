@@ -1,1 +1,1 @@
-# Project dependencies will be added here.
+# No external dependencies required for CLI MVP.

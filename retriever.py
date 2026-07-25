@@ -9,13 +9,21 @@ TURKISH_STOPWORDS = {
 }
 
 
+def turkish_lower(text: str) -> str:
+    """
+    Converts Turkish characters to lowercase correctly.
+    'İ' -> 'i', 'I' -> 'ı'
+    """
+    text = text.replace("İ", "i").replace("I", "ı")
+    return text.lower()
+
+
 def tokenize(text: str) -> list[str]:
     """
     Converts text into clean lowercase words.
     """
-
-    text = text.lower()
-    text = re.sub(r"[^a-zA-ZçğıöşüÇĞİÖŞÜ0-9\s]", " ", text)
+    text = turkish_lower(text)
+    text = re.sub(r"[^a-zA-Zçğıöşü0-9\s]", " ", text)
 
     words = text.split()
 
@@ -32,7 +40,6 @@ def calculate_keyword_score(question: str, chunk_content: str) -> int:
     Calculates a simple keyword-based similarity score
     between the user question and a document chunk.
     """
-
     question_words = tokenize(question)
     chunk_words = tokenize(chunk_content)
 
@@ -50,7 +57,6 @@ def retrieve_relevant_chunks(question: str, chunks: list[dict], top_k: int = 3) 
     """
     Retrieves the most relevant chunks for a given question.
     """
-
     scored_chunks = []
 
     for chunk in chunks:
