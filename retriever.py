@@ -8,6 +8,33 @@ TURKISH_STOPWORDS = {
     "olarak", "olan", "olur", "var", "yok"
 }
 
+# Turkish-English keyword normalization and expansion map
+KEYWORD_EXPANSION = {
+    "haftalık": ["hafta", "week", "weeks", "four", "month", "session", "sessions"],
+    "haftalik": ["hafta", "week", "weeks", "four", "month", "session", "sessions"],
+    "hafta": ["haftalık", "week", "weeks", "four", "month", "session", "sessions"],
+    "gün": ["day", "days"],
+    "gun": ["day", "days"],
+    "günde": ["day", "days"],
+    "gunde": ["day", "days"],
+    "günü": ["day", "days"],
+    "gunu": ["day", "days"],
+    "aşama": ["phase", "phases"],
+    "asama": ["phase", "phases"],
+    "aşaması": ["phase", "phases"],
+    "asamasi": ["phase", "phases"],
+    "program": ["course", "curriculum"],
+    "programı": ["course", "curriculum"],
+    "programi": ["course", "curriculum"],
+    "sunum": ["presentation", "presentations", "presenting"],
+    "sunumu": ["presentation", "presentations", "presenting"],
+    "test": ["testing", "tests"],
+    "doküman": ["document", "documents"],
+    "dokuman": ["document", "documents"],
+    "dokümanı": ["document", "documents"],
+    "dokumani": ["document", "documents"]
+}
+
 
 def turkish_lower(text: str) -> str:
     """
@@ -21,6 +48,7 @@ def turkish_lower(text: str) -> str:
 def tokenize(text: str) -> list[str]:
     """
     Converts text into clean lowercase words.
+    Keeps words longer than 1 character or digits (like 1, 5, 3).
     """
     text = turkish_lower(text)
     text = re.sub(r"[^a-zA-Zçğıöşü0-9\s]", " ", text)
@@ -29,7 +57,7 @@ def tokenize(text: str) -> list[str]:
 
     meaningful_words = [
         word for word in words
-        if word not in TURKISH_STOPWORDS and len(word) > 1
+        if word not in TURKISH_STOPWORDS and (len(word) > 1 or word.isdigit())
     ]
 
     return meaningful_words
@@ -39,6 +67,7 @@ def calculate_keyword_score(question: str, chunk_content: str) -> int:
     """
     Calculates a simple keyword-based similarity score
     between the user question and a document chunk.
+    Includes keyword expansion and duration search boosting.
     """
     question_words = tokenize(question)
     chunk_words = tokenize(chunk_content)
@@ -48,7 +77,24 @@ def calculate_keyword_score(question: str, chunk_content: str) -> int:
     score = 0
 
     for word in question_words:
-        score += chunk_word_counts.get(word, 0)
+        # Check original word match
+        word_score = chunk_word_counts.get(word, 0)
+
+        # Check expanded words match
+        if word in KEYWORD_EXPANSION:
+            for alias in KEYWORD_EXPANSION[word]:
+                word_score += chunk_word_counts.get(alias, 0)
+
+        score += word_score
+
+    # Apply score boost for duration questions matching duration content
+    # Use question_words list to check exact matching tokens instead of substring in raw text
+    duration_keywords = {"haftalık", "haftalik", "gün", "gun", "süre", "sure"}
+    is_duration_question = any(term in question_words for term in duration_keywords)
+    if is_duration_question:
+        chunk_lower = chunk_content.lower()
+        if any(phrase in chunk_lower for phrase in ["four-week", "4 weeks", "one-month", "20 daily sessions", "20 günlük"]):
+            score += 15
 
     return score
 

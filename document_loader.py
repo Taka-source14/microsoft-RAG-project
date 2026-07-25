@@ -11,8 +11,13 @@ def load_txt_file(file_path: Path) -> str:
 def load_docx_file(file_path: Path) -> str:
     """Reads a .docx file using python-docx."""
     doc = Document(file_path)
-    paragraphs = [p.text for p in doc.paragraphs]
-    return "\n".join(paragraphs).strip()
+    paragraphs = []
+    for p in doc.paragraphs:
+        txt = p.text.strip()
+        if txt:
+            cleaned = " ".join(txt.split())
+            paragraphs.append(cleaned)
+    return "\n\n".join(paragraphs).strip()
 
 
 def load_pdf_file(file_path: Path) -> str:
@@ -22,8 +27,11 @@ def load_pdf_file(file_path: Path) -> str:
     for page in reader.pages:
         text = page.extract_text()
         if text:
-            text_parts.append(text)
-    return "\n".join(text_parts).strip()
+            cleaned_lines = [line.strip() for line in text.split("\n") if line.strip()]
+            cleaned_page = "\n".join(cleaned_lines).strip()
+            if cleaned_page:
+                text_parts.append(cleaned_page)
+    return "\n\n".join(text_parts).strip()
 
 
 def load_documents(folder_path: str = "documents") -> list[dict]:

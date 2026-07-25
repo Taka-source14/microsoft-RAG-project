@@ -44,8 +44,7 @@ def main():
         # Generate grounded answer
         answer = generate_answer(question, relevant_chunks)
 
-        print("\nCevap:")
-        print(answer)
+        print(f"\n{answer}")
         print("-" * 50 + "\n")
 
 
