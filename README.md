@@ -1,111 +1,187 @@
-# YBS Proje Takip Asistanı (Local RAG Project Management Assistant)
+# Proje Takip Asistanı – Local RAG Project Management Assistant
 
-This project is a terminal-based Local RAG MVP. It implements document loading, chunking, local embedding/vector representation, SQLite vector storage, semantic retrieval with cosine similarity, prompt building, and source-based answer generation. If Microsoft Foundry Local is available, the architecture is ready for local model integration. If Foundry Local is not available, the system runs fully offline using a TF-IDF fallback retrieval mode.
+## 2. Overview
 
----
+“ Proje Takip Asistanı is a terminal-based Local RAG MVP that implements a complete local Retrieval-Augmented Generation workflow for project management documents. The system performs document ingestion, chunking, local vector representation, SQLite vector storage, semantic retrieval with cosine similarity, prompt construction, and source-grounded answer generation.”
 
-## 1. Project Overview & Problem Solved
+“The project is designed with a Microsoft Foundry Local ready architecture. In the current local setup, the system runs fully offline using TF-IDF vectorization as the local embedding fallback. This allows the RAG pipeline to remain functional without cloud APIs, paid API keys, or external services.”
 
-Managing project timelines, requirements, and deliverables can involve scanning through long document files. This project acts as an offline, private, and local **Retrieval-Augmented Generation (RAG)** assistant. It reads your project documents and answers natural language questions using only the context found within those files.
-
-This solves the problem of information accessibility in project management without relying on cloud-based LLM APIs, preserving data privacy and ensuring complete offline functionality.
+This is a working terminal-based Local RAG MVP that lets users ask questions over local project documents.
 
 ---
 
-## 2. Current Implemented RAG Pipeline
+## 3. Problem Statement
 
-The system utilizes the following local data flow:
+Project documents are usually spread across different files such as plans, requirements, risks, notes, and reports. Manually searching them takes time. This assistant creates a local searchable knowledge base and answers questions with source references.
+
+---
+
+## 4. Implemented RAG Pipeline
+
 ```text
-Documents Folder → Document Loader → Text Chunker → TF-IDF Fallback Embedding → SQLite Vector Store (rag.db) → Cosine Similarity Semantic Retriever → Prompt Builder → Extractive Fallback Generator → Source-Cited Answer
+Documents → Document Loader → Text Chunker → Local Embeddings / Vector Representation → SQLite Vector Store → Semantic Retriever → Prompt Builder → Answer Generator → Source-Cited Answer
 ```
 
-1. **Document Loader (`document_loader.py`):** Loads and reads `.txt` (UTF-8), Word `.docx`, and text-based `.pdf` files. Skips scanned (image-only) PDFs or empty files and raises a warning.
-2. **Text Chunker (`text_chunker.py`):** Splits document contents into chunks of maximum 800 characters, respecting paragraph and sentence boundaries.
-3. **Embedding Generator (`embedding_generator.py`):** Computes vector embeddings. When Microsoft Foundry Local SDK is absent, it uses a local `scikit-learn` TF-IDF vectorizer fallback.
-4. **Vector Store (`vector_store.py`):** Rebuilds and stores all chunks, sources, and vector lists in a local SQLite database named `rag.db`.
-5. **Semantic Retriever (`semantic_retriever.py`):** Transforms queries into vectors and scores all database chunks using **Cosine Similarity**. Matches below a `0.25` similarity score are ignored. If no matches are found, it falls back to the keyword-based retriever.
-6. **Prompt Builder (`prompt_builder.py`):** Combines the user query with matching context blocks to build a grounded prompt in Turkish.
-7. **Response Generator (`response_generator.py`):** Runs the answer generator. Since Foundry Local is in fallback mode, it triggers the local extractive engine to retrieve the most relevant sentence structures and lists sources with their similarity scores.
+- **Document Loader** reads TXT, DOCX, and text-based PDF files from the documents folder during document ingestion.
+- **Text Chunker** splits long documents into smaller chunks.
+- **Embedding** layer creates local vector representations.
+- **SQLite vector store** saves chunks and vectors in `rag.db`.
+- **Semantic Retriever** calculates cosine similarity between the question and stored chunks.
+- **Prompt Builder** prepares grounded context from retrieved chunks.
+- **Answer Generator** returns concise answers with source citations.
 
 ---
 
-## 3. Supported File Types
-* **`.txt`**: Read with standard UTF-8 encoding.
-* **`.docx`**: Parsed using `python-docx`.
-* **`.pdf`**: Text-based PDFs parsed using `pypdf`. (Scanned, image-based, or non-text PDFs are skipped with a warning).
+## 5. Current Runtime Mode
+
+Current runtime mode:
+- **Embedding mode:** TF-IDF fallback
+- **Vector store:** SQLite `rag.db`
+- **Retrieval:** cosine similarity
+- **Answering:** source-grounded local extractive generation
+- **Execution:** fully offline terminal-based application
+
+This still follows the RAG pipeline structure locally.
 
 ---
 
-## 4. Installation & Setup
+## 6. Microsoft Foundry Local Ready Architecture
 
-Ensure Python 3.8+ is installed on your Windows system.
+This project was structured to be Microsoft Foundry Local ready. The current implementation already separates embedding generation, vector storage, retrieval, prompt building, and answer generation into independent modules. This makes it possible to replace the TF-IDF fallback with Foundry Local embedding and chat models in a future environment where Foundry Local is installed.
 
-### Step 1: Create and Activate Virtual Environment
+---
+
+## 7. Features
+
+- Terminal-based Local RAG MVP
+- Local document question answering
+- TXT, DOCX, and text-based PDF ingestion
+- Automatic chunking
+- Local vector representation
+- SQLite vector storage
+- Semantic retrieval with cosine similarity
+- Prompt construction
+- Source-grounded answer generation
+- Source file and chunk ID references
+- Fallback behavior for unrelated questions
+- Fully offline execution
+- No cloud API required
+- No paid API key required
+
+---
+
+## 8. Supported File Types
+
+- `.txt` (Plain text files)
+- `.docx` (Microsoft Word documents)
+- `.pdf` (text-based only)
+
+Scanned PDFs are not supported because OCR is not implemented.
+
+---
+
+## 9. Installation
+
+To install dependencies, run the following commands:
 ```powershell
 python -m venv venv
 venv\Scripts\activate
-```
-
-### Step 2: Install Dependencies
-```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ---
 
-## 5. Running the Application
+## 10. Run
 
-To run the terminal-based interactive CLI loop, execute:
-```bash
+To run the interactive CLI loop:
+```powershell
 python app.py
 ```
 
-### Expected Startup Terminal Output:
+---
+
+## 11. Expected Startup Output
+
 ```text
 ==================================================
-   YBS Proje Takip Asistanı (Local RAG Pipeline)  
+   YBS Proje Takip Asistanı (Local RAG Pipeline)
 ==================================================
 Supported file types: .txt, .docx, .pdf
 Uygulama başlatılıyor...
 
 Documents loaded: 6
-Chunks created: 580
-Foundry Local embedding model not available. Using local TF-IDF fallback for semantic retrieval.
+Chunks created: 119
 Embedding mode: TF-IDF fallback
 Vector store: rag.db
 RAG pipeline ready.
 
 Soru sorabilirsiniz. Çıkmak için 'q', 'quit', 'exit' veya 'çıkış' yazın.
-
-Soru: 
 ```
 
 ---
 
-## 6. Example Questions
+## 12. Example Questions
 
-Once the application is running, you can test it with the following questions:
+- `RAG nedir?`
+- `Bu projenin amacı nedir?`
+- `Foundry Local nedir?`
+- `Embedding ne işe yarar?`
+- `Vector search ne işe yarar?`
+- `Bu sistem hangi dosya türlerini destekliyor?`
+- `Bugün hava nasıl?`
+- `Bitcoin fiyatı kaç?`
 
-| Question | Expected Behavior |
-| --- | --- |
-| `RAG nedir?` | Returns a concise explanation and links source/chunk metadata |
-| `Bu projenin amacı nedir?` | Returns the project goal from `proje_amaci.txt` |
-| `Foundry Local nedir?` | Returns details from the document mentioning Foundry Local |
-| `Embedding ne işe yarar?` | Returns embedding explanations |
-| `Vector search ne işe yarar?` | Returns vector search explanations |
-| `Bugün hava nasıl?` | Returns fallback message: *"Bu soruyla ilgili yerel dokümanlarda yeterli bilgi bulunamadı."* |
-| `Bitcoin fiyatı kaç?` | Returns fallback message: *"Bu soruyla ilgili yerel dokümanlarda yeterli bilgi bulunamadı."* |
+Document-related questions return concise source-based answers.
+Unrelated/current-world questions return:
+`“Bu soruyla ilgili yerel dokümanlarda yeterli bilgi bulunamadı.”`
 
 ---
 
-## 7. Current Limitations & Future Improvements
+## 13. Repository Structure
 
-### Current Limitations:
-* **Honest Foundry Local Status:** Currently running in **fallback mode** (using local TF-IDF embeddings and an extractive fallback response generation engine) since the Microsoft Foundry Local environment is not installed on this system.
-* **No OCR Support:** Scanned or image-only PDF files cannot be processed and are skipped.
-* **Simplified Fallback Generator:** The fallback response generator extracts sentences directly from matching chunks; it does not synthesize new text.
+```text
+Local RAG Project Management Assistant/
+├── app.py
+├── document_loader.py
+├── text_chunker.py
+├── embedding_generator.py
+├── vector_store.py
+├── semantic_retriever.py
+├── prompt_builder.py
+├── response_generator.py
+├── retriever.py
+├── requirements.txt
+├── README.md
+├── .gitignore
+├── documents/
+├── sample_documents/
+├── docs/
+└── tests/
+```
 
-### Future Improvements:
-* **Direct Microsoft Foundry Local Integration:** Hooking up dense embedding and chat models once the Foundry Local SDK becomes available.
-* **SQLite-vss / FAISS Integration:** Replacing linear cosine similarity checks with structured vector index matching for large-scale operations.
-* **OCR support:** Integrating `pytesseract` to extract text from scanned documents.
+---
+
+## 14. Limitations
+
+- Current runtime uses TF-IDF fallback instead of active Foundry Local models.
+- Fallback answer generation is extractive and source-grounded.
+- Scanned PDFs are not supported.
+- Very large document collections may require optimization.
+- This is an MVP, not a production deployment.
+
+---
+
+## 15. Future Improvements
+
+- Activate Microsoft Foundry Local embedding model
+- Add Foundry Local chat model generation
+- Improve semantic ranking
+- Add advanced vector database support
+- Add OCR for scanned PDFs
+- Add optional UI after CLI MVP
+
+---
+
+## 16. Final Statement
+
+“This project demonstrates a working Local RAG MVP pipeline for project management documents with offline execution, local document ingestion, vector-based retrieval, SQLite storage, prompt construction, and source-grounded answer generation.”
