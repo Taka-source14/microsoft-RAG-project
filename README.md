@@ -242,3 +242,9 @@ Key learning outcomes:
 - Returning source-cited answers instead of unsupported responses
 - Designing the project with a Microsoft Foundry Local-ready architecture
 - Keeping the system functional offline without cloud APIs or paid API keys
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
