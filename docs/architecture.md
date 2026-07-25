@@ -325,31 +325,22 @@ erDiagram
 
 ---
 
-## 14. MVP Kapsamı
+## 14. Current Implemented Architecture
 
-İlk çalışan sürümde olması gerekenler:
-
-```text
-- TXT dokümanlarını okuma
-- Metinleri chunklara bölme
-- Basit embedding/retrieval mantığı
-- Kullanıcıdan soru alma
-- Context destekli cevap üretme
-- Kaynak dosya gösterme
-- README ve test soruları
-```
+Şu anda YBS Proje Takip Asistanı'nda tam olarak çalışan RAG mimarisi şu şekildedir:
+- **Doküman Yükleme:** `documents/` altındaki `.txt`, `.docx`, ve metin tabanlı `.pdf` dosyalarını temiz bir şekilde yükler.
+- **Parçalama (Chunking):** Paragraf sınırlarını koruyarak maksimum 800 karakter boyutunda parçalar oluşturur.
+- **Embedding:** Yerel TF-IDF vektörleştirici (fallback) kullanarak metin parçalarını ve sorguları sayısal vektörlere çevirir (Microsoft Foundry Local entegrasyonu için yapı hazırlanmıştır).
+- **Vektör Deposu (SQLite):** `rag.db` adında yerel bir veritabanı kurarak chunk metinlerini, kaynak yollarını ve embedding JSON dizelerini saklar.
+- **Semantik Arama:** Cosine Similarity hesaplayarak en benzer 3 chunk'ı çeker. Arama hatasında anahtar kelime tabanlı fall-back mekanizmasını çalıştırır.
+- **Prompt Builder:** İlgili context parçalarını ve kuralları birleştirerek Türkçe prompt hazırlar.
+- **Cevap Üretimi:** Microsoft Foundry Local LLM API'sine bağlanmayı dener; bulunamazsa, yerel context içinden en alakalı cümleleri seçen akıllı fallback modunu çalıştırır.
 
 ---
 
-## 15. Sonraki Geliştirmeler
+## 15. Target Full Foundry Local Architecture
 
-```text
-- SQLite entegrasyonu
-- Streamlit arayüzü
-- PDF ve DOCX desteği
-- Test sonuç tablosu
-- Kaynak skorlarını gösterme
-- Haftalık görev takip paneli
-- Proje ilerleme özeti üretme
-- Doküman yükleme ekranı
-```
+Gelecek aşamalarda hedeflenen tam Microsoft Foundry Local entegrasyonu:
+- **Embedding:** Microsoft Foundry Local SDK üzerinden yerel çalışan yüksek başarımlı bir dense embedding modeli (örneğin BERT veya MiniLM tabanlı) ile metinleri vektörleştirme.
+- **Vektör Deposu:** SQLite üzerinde JSON aramak yerine, pgvector benzeri bir yerel vektör eklentisi veya doğrudan SQLite-vss entegrasyonu ile hızlı ANN aramaları yapma.
+- **Local LLM:** Yerel donanım üzerinde (CPU/GPU) barındırılan Llama-3 veya Mistral benzeri 7B parametreli bir Foundry Local LLM modeli ile prompt'ları işleyip yüksek kaliteli, özetlenmiş, doğal dilde cevaplar üretme.

@@ -1,2 +1,4 @@
 python-docx
 pypdf
+scikit-learn
+numpy

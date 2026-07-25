@@ -5,7 +5,9 @@ from collections import Counter
 TURKISH_STOPWORDS = {
     "ve", "veya", "ile", "için", "bu", "şu", "o", "bir", "de", "da",
     "ne", "nedir", "nasıl", "hangi", "nelerdir", "mi", "mı", "mu", "mü",
-    "olarak", "olan", "olur", "var", "yok"
+    "olarak", "olan", "olur", "var", "yok", "kaç", "kac", "kadar",
+    "mıdır", "midir", "mudur", "müdür", "mıyız", "miyiz", "ise", "ki",
+    "en", "daha", "çok", "cok", "gibi", "şey", "sey"
 }
 
 # Turkish-English keyword normalization and expansion map
@@ -104,11 +106,13 @@ def retrieve_relevant_chunks(question: str, chunks: list[dict], top_k: int = 3) 
     Retrieves the most relevant chunks for a given question.
     """
     scored_chunks = []
+    question_words = tokenize(question)
+    min_required_matches = 2 if len(question_words) >= 2 else 1
 
     for chunk in chunks:
         score = calculate_keyword_score(question, chunk["content"])
 
-        if score > 0:
+        if score >= min_required_matches:
             scored_chunks.append({
                 "source": chunk["source"],
                 "chunk_id": chunk["chunk_id"],
