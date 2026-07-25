@@ -223,3 +223,22 @@ Local RAG Project Management Assistant/
 ## Final Statement
 
 This project demonstrates a working Local RAG MVP pipeline for project management documents with offline execution, local document ingestion, chunking, vector-based retrieval, SQLite storage, prompt construction, source-grounded answer generation, and Microsoft Foundry Local-ready architecture.
+
+---
+
+## What I Learned
+
+During this project, I learned how a Local RAG system works end-to-end. I practiced how to build a local document question-answering assistant by combining document ingestion, text chunking, local vector representation, semantic retrieval, prompt construction, and source-grounded answer generation.
+
+Key learning outcomes:
+
+- Understanding the Retrieval-Augmented Generation (RAG) pattern: retrieve, augment, and generate
+- Loading and processing local TXT, DOCX, and text-based PDF documents
+- Splitting long documents into smaller chunks for better retrieval
+- Creating local vector representations for document chunks and user questions
+- Storing document chunks and vectors in a local SQLite database
+- Using cosine similarity for semantic retrieval
+- Building prompts with retrieved context to reduce hallucination risk
+- Returning source-cited answers instead of unsupported responses
+- Designing the project with a Microsoft Foundry Local-ready architecture
+- Keeping the system functional offline without cloud APIs or paid API keys
