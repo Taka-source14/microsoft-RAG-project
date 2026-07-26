@@ -245,9 +245,24 @@ Key learning outcomes:
 
 ---
 
-## Optional Local LLM Adapter
+## Local LLM Compatible Answer Generation Layer
 
-The project includes an optional local LLM adapter layer. If a supported local model runtime is available in the environment, the answer generation step can use that backend. If no local LLM runtime is available, the system automatically continues with local source-grounded fallback generation.
+This project includes a modular answer generation layer designed for local LLM usage. The layer is implemented through `local_llm_client.py` and integrated with `response_generator.py`.
+
+The purpose of this layer is to make the RAG answer generation step suitable for local LLM integration. When a supported local LLM runtime is available in the environment, the grounded RAG prompt can be routed to that backend for answer generation. If no local LLM backend is detected, the application automatically continues with the existing local source-grounded fallback mode.
+
+Current behavior:
+- The system checks whether Microsoft Foundry Local SDK is available.
+- The system checks whether an Ollama backend is available.
+- If a real local LLM backend is detected and responds successfully, it can be used for answer generation.
+- If no backend is available, the application does not crash.
+- The system continues with local source-grounded fallback generation.
+- Source file names and chunk IDs are still shown in the final answer.
+
+Current verified runtime mode:
+```text
+Answer mode: Local source-grounded fallback
+```
 
 ---
 
