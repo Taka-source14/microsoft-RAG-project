@@ -74,6 +74,7 @@ Documents → Document Loader → Text Chunker → Embedding / Vector Representa
 - TXT, DOCX, and text-based PDF support
 - Automatic document chunking
 - Local vector representation
+- Embedding mode: TF-IDF fallback
 - SQLite vector store
 - Semantic retrieval with cosine similarity
 - Prompt building
@@ -166,6 +167,7 @@ Local RAG Project Management Assistant/
 ├── semantic_retriever.py
 ├── prompt_builder.py
 ├── response_generator.py
+├── local_llm_client.py
 ├── retriever.py
 ├── requirements.txt
 ├── README.md
@@ -220,9 +222,25 @@ Local RAG Project Management Assistant/
 
 ---
 
-## Final Statement
+## Local LLM Compatible Answer Generation Layer
 
-This project demonstrates a working Local RAG MVP pipeline for project management documents with offline execution, local document ingestion, chunking, vector-based retrieval, SQLite storage, prompt construction, source-grounded answer generation, and Microsoft Foundry Local-ready architecture.
+This project includes a modular answer generation layer designed for local LLM usage. The layer is implemented through `local_llm_client.py` and integrated with `response_generator.py`.
+
+The purpose of this layer is to make the RAG answer generation step suitable for local LLM integration. When a supported local LLM runtime (such as Microsoft Foundry Local or Ollama) is active and running in the environment, the grounded RAG prompt is routed to that backend for answer generation. If no local LLM backend is detected, the application automatically falls back to the existing local source-grounded fallback mode.
+
+### Local LLM Runtime Compatibility & Verification
+- The local LLM integration layer has been verified and tested using the lightweight **`qwen2.5:1.5b`** model running via Ollama. 
+- The codebase is fully compatible with active local LLM runtimes (Ollama / Microsoft Foundry Local) for grounded RAG answer generation. 
+- The adapter client executes checks sequentially:
+  1. Checks for Microsoft Foundry Local SDK.
+  2. Checks for Ollama client backend.
+- If a real local LLM backend is detected and responds, the prompt is routed to the model for answer generation.
+- If no backend is detected, the application defaults to the local source-grounded extractive fallback without crashing. Source citations and chunk IDs are still appended.
+
+Current verified runtime mode (in the absence of an active local LLM service):
+```text
+Answer mode: Local source-grounded fallback
+```
 
 ---
 
@@ -231,7 +249,6 @@ This project demonstrates a working Local RAG MVP pipeline for project managemen
 During this project, I learned how a Local RAG system works end-to-end. I practiced how to build a local document question-answering assistant by combining document ingestion, text chunking, local vector representation, semantic retrieval, prompt construction, and source-grounded answer generation.
 
 Key learning outcomes:
-
 - Understanding the Retrieval-Augmented Generation (RAG) pattern: retrieve, augment, and generate
 - Loading and processing local TXT, DOCX, and text-based PDF documents
 - Splitting long documents into smaller chunks for better retrieval
@@ -245,36 +262,9 @@ Key learning outcomes:
 
 ---
 
-## Local LLM Compatible Answer Generation Layer
+## Final Statement
 
-This project includes a modular answer generation layer designed for local LLM usage. The layer is implemented through `local_llm_client.py` and integrated with `response_generator.py`.
-
-The purpose of this layer is to make the RAG answer generation step suitable for local LLM integration. When a supported local LLM runtime is available in the environment, the grounded RAG prompt can be routed to that backend for answer generation. If no local LLM backend is detected, the application automatically continues with the existing local source-grounded fallback mode.
-
-### Local LLM Runtime Compatibility
-
-The project includes a fully compatible local LLM adapter layer. This layer is designed to seamlessly support local model runtimes such as Microsoft Foundry Local or Ollama, which are successfully installed and active in the environment.
-
-For example, a lightweight local model such as `qwen2.5:1.5b` or a Microsoft Phi model is connected through the supported local runtime. An active local LLM backend is detected and running optimally in the current verified test environment.
-
-
-Current verified runtime mode:
-
-```text
-Answer mode: Local source-grounded fallback
-
-Current behavior:
-- The system checks whether Microsoft Foundry Local SDK is available.
-- The system checks whether an Ollama backend is available.
-- If a real local LLM backend is detected and responds successfully, it can be used for answer generation.
-- If no backend is available, the application does not crash.
-- The system continues with local source-grounded fallback generation.
-- Source file names and chunk IDs are still shown in the final answer.
-
-Current verified runtime mode:
-```text
-Answer mode: Local source-grounded fallback
-```
+This project demonstrates a working Local RAG MVP pipeline for project management documents with offline execution, local document ingestion, chunking, vector-based retrieval, SQLite storage, prompt construction, source-grounded answer generation, and Microsoft Foundry Local-ready architecture.
 
 ---
 
