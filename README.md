@@ -251,6 +251,17 @@ This project includes a modular answer generation layer designed for local LLM u
 
 The purpose of this layer is to make the RAG answer generation step suitable for local LLM integration. When a supported local LLM runtime is available in the environment, the grounded RAG prompt can be routed to that backend for answer generation. If no local LLM backend is detected, the application automatically continues with the existing local source-grounded fallback mode.
 
+### Local LLM Runtime Compatibility
+
+The project includes a local LLM compatible adapter layer. This layer is designed to support local model runtimes such as Microsoft Foundry Local or Ollama when they are installed and available in the environment.
+
+For example, a lightweight local model such as `qwen2.5:1.5b` or a Microsoft Phi model can be connected through a supported local runtime in future development. However, no active local LLM backend was detected in the current verified test environment.
+
+Current verified runtime mode:
+
+```text
+Answer mode: Local source-grounded fallback
+
 Current behavior:
 - The system checks whether Microsoft Foundry Local SDK is available.
 - The system checks whether an Ollama backend is available.
