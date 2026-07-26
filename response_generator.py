@@ -1,22 +1,12 @@
 import re
 from prompt_builder import build_rag_prompt
-
-# Try importing Foundry Local SDK/packages if available
-HAS_FOUNDRY_LLM = False
-
-try:
-    import foundry_local_llm_sdk
-    # HAS_FOUNDRY_LLM = True
-except ImportError:
-    HAS_FOUNDRY_LLM = False
+from local_llm_client import generate_with_optional_local_llm
 
 
 def generate_answer_with_llm(question: str, retrieved_chunks: list[dict]) -> str:
     """
-    Tries to generate an answer using Foundry Local LLM.
-    If unavailable, falls back to generate_fallback_answer.
+    Generates an answer using either an optional local LLM backend or the fallback extractive engine.
     """
-    global HAS_FOUNDRY_LLM
     fallback_msg = "Bu soruyla ilgili yerel dokümanlarda yeterli bilgi bulunamadı."
 
     if not retrieved_chunks:
@@ -26,25 +16,25 @@ def generate_answer_with_llm(question: str, retrieved_chunks: list[dict]) -> str
     if not valid_chunks:
         return fallback_msg
 
-    if HAS_FOUNDRY_LLM:
-        try:
-            print("Mode: Foundry Local LLM")
-            prompt = build_rag_prompt(question, valid_chunks)
-            # Call hypothetical Foundry LLM generation
-            # answer_text = foundry_local_llm_sdk.generate(prompt)
-            # return format_response(answer_text, valid_chunks)
-            raise NotImplementedError()
-        except Exception:
-            return format_response(generate_fallback_answer(question, valid_chunks), valid_chunks)
+    # Build RAG prompt using prompt_builder
+    prompt = build_rag_prompt(question, valid_chunks)
+
+    # Attempt to query optional local LLM backend (e.g. Ollama or Microsoft Foundry Local)
+    success, answer, backend_name = generate_with_optional_local_llm(prompt)
+
+    if success:
+        print(f"Answer mode: Optional local LLM backend available: {backend_name}")
+        return format_response(answer, valid_chunks)
     else:
-        return format_response(generate_fallback_answer(question, valid_chunks), valid_chunks)
+        print("Answer mode: Local source-grounded fallback")
+        extractive_answer = generate_fallback_answer(question, valid_chunks)
+        return format_response(extractive_answer, valid_chunks)
 
 
 def generate_fallback_answer(question: str, retrieved_chunks: list[dict]) -> str:
     """
     Extractive fallback answer generator using chunk extraction rules.
     """
-    print("Mode: Local extractive fallback")
     valid_chunks = [chunk for chunk in retrieved_chunks if chunk.get("score", 0) > 0]
     if not valid_chunks:
         return ""

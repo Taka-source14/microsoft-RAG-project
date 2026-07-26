@@ -245,6 +245,12 @@ Key learning outcomes:
 
 ---
 
+## Optional Local LLM Adapter
+
+The project includes an optional local LLM adapter layer. If a supported local model runtime is available in the environment, the answer generation step can use that backend. If no local LLM runtime is available, the system automatically continues with local source-grounded fallback generation.
+
+---
+
 ## License
 
 This project is licensed under the MIT License. See the `LICENSE` file for details.
